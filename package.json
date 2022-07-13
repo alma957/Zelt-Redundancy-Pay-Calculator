@@ -1,7 +1,7 @@
 {
   "name": "ZeltAllowanceCalculator",
   "version": "0.1.0",
-  "homepage": "https://alma957.github.io/react-gh-pages/Zelt-Pay-Calculator",
+  "homepage": "https://alma957.github.io/Zelt-Pay-Calculator",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.9.3",
