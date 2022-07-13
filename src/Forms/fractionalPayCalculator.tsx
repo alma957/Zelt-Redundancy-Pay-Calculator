@@ -63,12 +63,11 @@ export const FractionalPayForm = (): JSX.Element => {
       </p>
       <p>
         <label>
-          Gross Salary *
+          Gross Salary (£) *
           <input
             type="number"
             min="0"
-            value={salary}
-            step="0.01"
+            step="any"
             onChange={(e) => {
               if (parseFloat(e.target.value) < 0) {
                 setGrossSalary(0);
@@ -116,7 +115,7 @@ export const FractionalPayForm = (): JSX.Element => {
           <label>
             Select Working Days (Mon-Fri Default)
             <select style={{ fontWeight: "normal" }}>
-              <option>Select an Option</option>
+              <option>Select Working Days</option>
             </select>
           </label>
           <div className="overSelect" style={{ fontWeight: "normal" }}></div>
@@ -153,6 +152,7 @@ export const FractionalPayForm = (): JSX.Element => {
           <label>
             <Checkbox
               value="3"
+              defaultChecked
               onClick={(e: any) => {
                 // checkWorkingDays(e);
                 updateCheckedVal(
@@ -225,7 +225,7 @@ export const FractionalPayForm = (): JSX.Element => {
           <input
             type="number"
             min="0"
-            step="0.01"
+            step="0.1"
             value={daysToTakeOff}
             onChange={(e) =>
               parseFloat(e.target.value) < 0 || parseFloat(e.target.value) > 7
@@ -240,6 +240,13 @@ export const FractionalPayForm = (): JSX.Element => {
         <div>
           <button
             onClick={() => {
+              if (
+                startDate === undefined ||
+                endDate === undefined ||
+                salary === undefined ||
+                isNaN(salary)
+              )
+                return;
               const pay = calculateFractionalPay(
                 new Date(startDate as string),
                 new Date(endDate as string),
@@ -260,9 +267,9 @@ export const FractionalPayForm = (): JSX.Element => {
       <h2>
         {fractionalPay === undefined
           ? ""
-          : `Fractional Pay: £${(
+          : `Fractional Pay: £${currencyFormat(
               Math.round(fractionalPay * 100) / 100
-            )?.toFixed(2)}`}
+            )}`}
       </h2>
     </form>
   );
@@ -281,9 +288,6 @@ const calculateFractionalPay = (
     return undefined;
   } else if (workingDays.size === 0) {
     alert("You need to select at least a working day");
-    return undefined;
-  } else if (grossSalary === undefined || isNaN(grossSalary)) {
-    alert("You need to insert a valid salary");
     return undefined;
   }
   const days = Math.max(
@@ -322,4 +326,7 @@ const calcNumberOfFractionalDays = (
 
 const addOneDay = (date: Date) => {
   return date.getTime() + 1000 * 3600 * 24;
+};
+const currencyFormat = (num: number): string => {
+  return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
