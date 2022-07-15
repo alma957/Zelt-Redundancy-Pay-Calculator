@@ -1,4 +1,3 @@
-import { Checkbox } from "@mui/material";
 import { useState } from "react";
 
 import { salaryBpMap } from "./variables";
@@ -7,26 +6,10 @@ export const FractionalPayForm = (): JSX.Element => {
   const [startDate, setStartDate] = useState<string | undefined>();
   const [endDate, setEndDate] = useState<string | undefined>();
   const [salary, setGrossSalary] = useState<number | undefined>();
-  let [checkedWorkingDays, setWorkingDays] = useState<Set<number>>(
-    new Set([1, 2, 3, 4, 5])
-  );
-  const [salaryBasis, setSalaryBasis] = useState<string>("Annually");
-  const [daysToTakeOff, setDaysWorkedPerWeek] = useState<number | undefined>(0);
-  const [fractionalPay, setFractionalPay] = useState<number | undefined>();
 
-  const updateCheckedVal = (num: number, action: string) => {
-    switch (action) {
-      case "add":
-        checkedWorkingDays.add(num);
-        setWorkingDays(checkedWorkingDays);
-        break;
-      case "delete":
-        checkedWorkingDays.delete(num);
-        setWorkingDays(checkedWorkingDays);
-        break;
-    }
-  };
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [salaryBasis, setSalaryBasis] = useState<string>("Annually");
+
+  const [fractionalPay, setFractionalPay] = useState<number | undefined>();
 
   return (
     <form
@@ -37,7 +20,7 @@ export const FractionalPayForm = (): JSX.Element => {
       }}
     >
       <div className="flex-container">
-        <h2>Pay Calculator</h2>
+        <h2>Fractional Pay Calculator</h2>
       </div>
       <p>
         <label>
@@ -98,143 +81,6 @@ export const FractionalPayForm = (): JSX.Element => {
           </select>
         </label>
       </p>
-      <div className="multiselect">
-        <div
-          className="selectBox"
-          onClick={(e) => {
-            var checkboxes = document.getElementById("checkboxes");
-            if (!expanded) {
-              checkboxes!.style.display = "block";
-              setExpanded(true);
-            } else {
-              checkboxes!.style.display = "none";
-              setExpanded(false);
-            }
-          }}
-        >
-          <label>
-            Select Working Days (Mon-Fri Default)
-            <select style={{ fontWeight: "normal" }}>
-              <option>Select Working Days</option>
-            </select>
-          </label>
-          <div className="overSelect" style={{ fontWeight: "normal" }}></div>
-        </div>
-        <div id="checkboxes" className="expand">
-          <label>
-            <Checkbox
-              value="1"
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-              defaultChecked
-            />
-            Monday
-          </label>
-          <label>
-            <Checkbox
-              value="2"
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-              defaultChecked
-            />
-            Tuesday
-          </label>
-          <label>
-            <Checkbox
-              value="3"
-              defaultChecked
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-            />
-            Wedsnesday
-          </label>
-          <label>
-            <Checkbox
-              value="4"
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-              defaultChecked
-            />
-            Thursday
-          </label>
-          <label>
-            <Checkbox
-              value="5"
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-              defaultChecked
-            />
-            Friday
-          </label>
-          <label>
-            <Checkbox
-              value="6"
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-            />
-            Saturday
-          </label>
-          <label>
-            <Checkbox
-              value="0"
-              onClick={(e: any) => {
-                // checkWorkingDays(e);
-                updateCheckedVal(
-                  parseInt(e.target.value),
-                  e.target.checked ? "add" : "delete"
-                );
-              }}
-            />
-            Sunday
-          </label>
-        </div>
-      </div>
-      <p>
-        <label>
-          Days to Take Off
-          <input
-            type="number"
-            min="0"
-            step="0.1"
-            value={daysToTakeOff}
-            onChange={(e) =>
-              parseFloat(e.target.value) < 0 || parseFloat(e.target.value) > 7
-                ? ""
-                : setDaysWorkedPerWeek(parseFloat(e.target.value))
-            }
-          />
-        </label>
-      </p>
 
       <div className="flex-container">
         <div>
@@ -248,10 +94,9 @@ export const FractionalPayForm = (): JSX.Element => {
               )
                 return;
               const pay = calculateFractionalPay(
-                new Date(startDate as string),
-                new Date(endDate as string),
-                daysToTakeOff as number,
-                checkedWorkingDays,
+                new Date(startDate as string).getTime(),
+                new Date(endDate as string).getTime(),
+
                 salaryBasis,
                 salary as number
               );
@@ -267,66 +112,79 @@ export const FractionalPayForm = (): JSX.Element => {
       <h2>
         {fractionalPay === undefined
           ? ""
-          : `Fractional Pay: £${currencyFormat(
-              Math.round(fractionalPay * 100) / 100
-            )}`}
+          : `Fractional Pay: £${currencyFormat(roundUpAll(fractionalPay, 1))}`}
       </h2>
     </form>
   );
 };
 const calculateFractionalPay = (
-  startDate: Date,
-  endDate: Date,
-  daysOff: number,
-  workingDays: Set<number>,
+  startDate: number,
+  endDate: number,
   salaryBasis: string,
   grossSalary: number
 ): number | undefined => {
-  console.log(grossSalary);
-  if (endDate.getTime() < startDate.getTime()) {
+  if (endDate < startDate) {
     alert("End date must be after start date");
     return undefined;
-  } else if (workingDays.size === 0) {
-    alert("You need to select at least a working day");
-    return undefined;
-  }
-  const days = Math.max(
-    calcNumberOfFractionalDays(startDate, endDate, workingDays) -
-      (daysOff === undefined || isNaN(daysOff) ? 0 : daysOff),
-    0
-  );
-  console.log(salaryBpMap.get(salaryBasis));
-  console.log(grossSalary);
-  console.log(days);
-  return (grossSalary * salaryBpMap.get(salaryBasis)! * days) / 365;
-};
-
-const calcNumberOfFractionalDays = (
-  startDate: Date,
-  endDate: Date,
-  workingDays: Set<number>
-) => {
-  const startDateTime = startDate.getTime();
-  const endDateTime = endDate.getTime();
-  let actualDateTime = startDateTime;
-
-  let days = 0;
-  while (actualDateTime <= endDateTime) {
-    const d = new Date(actualDateTime);
-
-    if (workingDays.has(d.getDay())) {
-      days++;
-    }
-
-    actualDateTime = addOneDay(d);
   }
 
-  return days;
+  const gross =
+    (grossSalary *
+      salaryBpMap.get(salaryBasis)! *
+      (endDate -
+        startDate +
+        1000 *
+          3600 *
+          24 *
+          (1 +
+            new Date(endDate).getFullYear() -
+            new Date(startDate).getFullYear()))) /
+    (1000 * 3600 * 24 * (365 + leapAdjustments(startDate, endDate)));
+  return gross;
 };
 
-const addOneDay = (date: Date) => {
-  return date.getTime() + 1000 * 3600 * 24;
-};
 const currencyFormat = (num: number): string => {
   return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+};
+export const roundUpAll = (original: number, precision: number) => {
+  const value = original.toFixed(10);
+
+  const digits = value.split(".")[1];
+  let rounded: number | undefined = undefined;
+
+  const sDigits = digits[1];
+  if (sDigits === "0") {
+    return original;
+  } else if (digits[0] === "9") {
+    return Math.round(parseFloat(value));
+  } else {
+    rounded = parseFloat(
+      value.split(".")[0] + "." + (parseInt(digits[0]) + 1).toString()
+    );
+    return rounded;
+  }
+};
+
+const leapYear = (year: number) => {
+  if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
+    return true;
+  }
+
+  return false;
+};
+const leapAdjustments = (start: number, end: number): number => {
+  let res = 0;
+
+  let annMill = 365 * 24 * 60 * 1000 * 365;
+  let startYear = new Date(start);
+  if (leapYear(new Date(end).getFullYear())) {
+    res++;
+  }
+
+  while (startYear.getFullYear() < new Date(end).getFullYear()) {
+    if (leapYear(startYear.getFullYear())) res++;
+    startYear = new Date(startYear.getTime() + annMill);
+  }
+
+  return res;
 };
