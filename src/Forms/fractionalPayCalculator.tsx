@@ -3,8 +3,12 @@ import { useState } from "react";
 import { salaryBpMap } from "./variables";
 
 export const FractionalPayForm = (): JSX.Element => {
-  const [startDate, setStartDate] = useState<string | undefined>();
-  const [endDate, setEndDate] = useState<string | undefined>();
+  const [startDate, setStartDate] = useState<string>(
+    new Date(new Date().getFullYear(), 0, 1).toISOString()
+  );
+  const [endDate, setEndDate] = useState<string | undefined>(
+    new Date(new Date().getFullYear(), 0, 1).toISOString()
+  );
   const [salary, setGrossSalary] = useState<number | undefined>();
 
   const [salaryBasis, setSalaryBasis] = useState<string>("Annually");
