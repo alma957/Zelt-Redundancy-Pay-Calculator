@@ -113,9 +113,14 @@ export const FractionalPayForm = (): JSX.Element => {
         <div></div>
       </div>
       <h2>
-        {fractionalPay === undefined
-          ? ""
-          : `Fractional Pay: £${currencyFormat(roundUpAll(fractionalPay, 1))}`}
+        <b>
+          {" "}
+          {fractionalPay === undefined
+            ? ""
+            : `Fractional Pay: £${currencyFormat(
+                roundUpAll(fractionalPay, 1)
+              )}`}
+        </b>
       </h2>
     </form>
   );
