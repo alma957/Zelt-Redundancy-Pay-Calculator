@@ -82,10 +82,14 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         justifyContent: "space-between",
         marginLeft: "20px",
         marginTop: "20px",
+        background: "#F2F2F7",
       }}
     >
-      <FormGroup style={{flexDirection: "row", justifyContent: "flex-end"}}>
-        <FormLabel>Were earnings paid before 6th July 2022?</FormLabel>
+      {/* //"#F2F2F7" */}
+      <FormGroup style={{flexDirection: "row", justifyContent: "flex-start"}}>
+        <FormLabel style={{fontWeight: "bold", color: "black"}}>
+          Were earnings paid before 6th July 2022?
+        </FormLabel>
         <Switch
           onChange={e => {
             if (e.target.checked) {
@@ -102,6 +106,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         <InputLabel>Pay period</InputLabel>
         <Select
           label="Pay period"
+          style={{background: "white"}}
           value={inputState.payPeriod}
           input={<OutlinedInput label="Pay period" />}
           onChange={e => {
@@ -118,7 +123,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         label="Enter pay"
         type="number"
-        style={{marginTop: "15px"}}
+        style={{marginTop: "15px", background: "white"}}
         InputLabelProps={{shrink: true}}
         InputProps={{
           startAdornment: <InputAdornment position="start">£</InputAdornment>,
@@ -136,6 +141,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           inputProps={{}}
           input={<OutlinedInput label="Select NICs Category" />}
           value={inputState.category}
+          style={{background: "white"}}
           onChange={e => {
             inputState.category = e.target.value;
             setInputState({...inputState});
