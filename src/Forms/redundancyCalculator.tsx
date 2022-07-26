@@ -80,6 +80,8 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        marginLeft: "20px",
+        marginTop: "20px",
       }}
     >
       <FormGroup
