@@ -76,7 +76,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     const weekEarnings = Math.min(
       max.max_week,
       inputState.pay *
-        mappingEarnings[initialState.payPeriod as keyof typeof mappingEarnings]
+        mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings]
     );
 
     const total = Math.min(
