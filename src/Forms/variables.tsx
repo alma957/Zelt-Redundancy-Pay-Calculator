@@ -17,7 +17,6 @@ export interface RatesType {
 export interface Mapping {
   A: number;
   B: number;
-
   F: number;
   H: number;
   M: number;

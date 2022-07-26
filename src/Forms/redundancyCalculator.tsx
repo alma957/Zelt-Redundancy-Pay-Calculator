@@ -32,17 +32,26 @@ interface mult {
   annually: number;
   monthly: number;
   weekly: number;
-
   daily: number;
 }
+
 export const RedundancyPayCalculator = (): JSX.Element => {
+  const result = {
+    employer: 0,
+    employee: 0,
+  };
   const [inputState, setInputState] = useState<InputState>(initialState);
+  const [resultState, setResultState] = useState<any>(result);
   useEffect(() => {
     const payPeriod = inputState.payPeriod;
     const pay = inputState.pay * multiplier[payPeriod as keyof mult];
     const category = inputState.category;
     const before = inputState.validDate ? false : true;
-    const employeeContr = calculateNI(pay, category, employeeRates, before);
+
+    resultState.employee = calculateNI(pay, category, employeeRates, before);
+    resultState.employer = calculateNI(pay, category, employerData, before);
+    console.log("employees ", resultState.employee);
+    setResultState({...resultState});
   }, [inputState]);
   const calculateNI = (
     pay: number,
@@ -89,7 +98,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           value={!inputState.validDate}
         />
       </FormGroup>{" "}
-      <FormControl>
+      <FormControl style={{marginTop: "10px"}}>
         <InputLabel>Pay period</InputLabel>
         <Select
           label="Pay period"
@@ -100,8 +109,10 @@ export const RedundancyPayCalculator = (): JSX.Element => {
             setInputState({...inputState});
           }}
         >
-          <MenuItem value="weekly">Weekly</MenuItem>
+          <MenuItem value="annually">Annually</MenuItem>
           <MenuItem value="monthly">Monthly</MenuItem>
+          <MenuItem value="weekly">Weekly</MenuItem>
+          <MenuItem value="daily">Weekly</MenuItem>
         </Select>
       </FormControl>
       <TextField
@@ -125,6 +136,10 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           inputProps={{}}
           input={<OutlinedInput label="Select NICs Category" />}
           value={inputState.category}
+          onChange={e => {
+            inputState.category = e.target.value;
+            setInputState({...inputState});
+          }}
         >
           <MenuItem value="A">A</MenuItem>
           <MenuItem value="B">B</MenuItem>
@@ -139,6 +154,25 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           <MenuItem value="Z">Z</MenuItem>
         </Select>
       </FormControl>
+      <p style={{textDecoration: "underline", fontWeight: "bold"}}>
+        NI Employee: £{currencyFormat(resultState.employee)}
+      </p>
+      <p style={{textDecoration: "underline", fontWeight: "bold"}}>
+        NI Employer: £{currencyFormat(resultState.employer)}
+      </p>
     </Paper>
   );
+};
+const currencyFormat = (num: number): string => {
+  const ret = num.toFixed(3);
+  let digit = null;
+  const split = ret.split(".") as Array<string>;
+  if (split[1].charAt(2) !== "0") {
+    digit = parseInt(split[1].charAt(1)) + 1;
+    const str = parseFloat(split[0] + "." + split[1].charAt(0) + digit);
+
+    return str.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  } else {
+    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  }
 };

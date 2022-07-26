@@ -1,7 +1,7 @@
 {
-  "name": "zelt-fractional-pay-calculator",
+  "name": "zelt-national-insurance-calculator",
   "version": "0.1.0",
-  "homepage": "https://alma957.github.io/Zelt-Fractional-Pay-Calculator",
+  "homepage": "https://alma957.github.io/Zelt-National-Insurance-Calculator",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.9.3",
