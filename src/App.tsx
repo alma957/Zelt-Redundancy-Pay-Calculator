@@ -1,11 +1,11 @@
 import "./App.css";
-import { FractionalPayForm } from "./Forms/fractionalPayCalculator";
-
+import {RedundancyPayCalculator} from "./Forms/redundancyCalculator";
+import {Box} from "@mui/material";
 function App() {
   return (
-    <div className="App">
-      <FractionalPayForm />
-    </div>
+    <Box>
+      <RedundancyPayCalculator />
+    </Box>
   );
 }
 
