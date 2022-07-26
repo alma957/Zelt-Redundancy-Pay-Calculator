@@ -21,7 +21,7 @@ import {
   OutlinedInput,
 } from "@mui/material";
 import "../App.css";
-
+import {TypeObject} from "@mui/material/styles/createPalette";
 const multiplier: mult = {
   annually: 1 / 12,
   monthly: 1,
@@ -40,7 +40,6 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     employer: 0,
     employee: 0,
   };
-
   const [inputState, setInputState] = useState<InputState>(initialState);
   const [resultState, setResultState] = useState<any>(result);
   useEffect(() => {
