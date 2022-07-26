@@ -84,9 +84,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         marginTop: "20px",
       }}
     >
-      <FormGroup
-        style={{flexDirection: "row-reverse", justifyContent: "flex-end"}}
-      >
+      <FormGroup style={{flexDirection: "row", justifyContent: "flex-end"}}>
         <FormLabel>Were earnings paid before 6th July 2022?</FormLabel>
         <Switch
           onChange={e => {
@@ -114,7 +112,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           <MenuItem value="annually">Annually</MenuItem>
           <MenuItem value="monthly">Monthly</MenuItem>
           <MenuItem value="weekly">Weekly</MenuItem>
-          <MenuItem value="daily">Weekly</MenuItem>
+          <MenuItem value="daily">Daily</MenuItem>
         </Select>
       </FormControl>
       <TextField
