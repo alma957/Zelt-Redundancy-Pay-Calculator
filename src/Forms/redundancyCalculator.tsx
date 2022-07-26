@@ -1,19 +1,9 @@
 import {useEffect, useState} from "react";
-import {
-  InputState,
-  initialState,
-  employeeRates,
-  employerData,
-  RatesType,
-  Mapping,
-} from "./variables";
+import {rates, CapRates, Max} from "./variables";
 import {
   Select,
   TextField,
-  FormGroup,
   Paper,
-  Switch,
-  FormLabel,
   FormControl,
   MenuItem,
   InputLabel,
@@ -21,55 +11,89 @@ import {
   OutlinedInput,
 } from "@mui/material";
 import "../App.css";
-import {TypeObject} from "@mui/material/styles/createPalette";
-const multiplier: mult = {
-  annually: 1 / 12,
-  monthly: 1,
-  weekly: 52 / 12,
-  daily: 365 / 12,
-};
-interface mult {
-  annually: number;
-  monthly: number;
-  weekly: number;
-  daily: number;
+
+interface InputState {
+  date: string;
+  pay: number;
+  yearsWorked: number;
+  payPeriod: string;
+  age: number;
+  jurisdiction: string;
 }
-
+interface ErrorState {
+  date: string;
+  pay: string;
+  yearsWorked: string;
+  age: string;
+}
 export const RedundancyPayCalculator = (): JSX.Element => {
-  const result = {
-    employer: 0,
-    employee: 0,
+  const initialState: InputState = {
+    date: "2022-01-01",
+    pay: 2500,
+    yearsWorked: 5,
+    age: 30,
+    payPeriod: "annually",
+    jurisdiction: "england",
   };
+  const st = {marginTop: "20px", background: "white"};
   const [inputState, setInputState] = useState<InputState>(initialState);
-  const [resultState, setResultState] = useState<any>(result);
+  const [result, setResult] = useState<number>(0);
+  const [ErrorInputState, setErrorInputState] = useState<ErrorState>({
+    date: "",
+    pay: "",
+    yearsWorked: "",
+    age: "",
+  });
+  const errorStyle = {
+    color: "red",
+    background: "#F2F2F7",
+    marginLeft: "0",
+    marginTop: "0",
+    width: "100%",
+  };
+  const mappingEarnings = {
+    weekly: 1,
+    daily: 7,
+    annually: 1 / 52,
+    monthly: 12 / 52,
+  };
   useEffect(() => {
-    const payPeriod = inputState.payPeriod;
-    const pay = inputState.pay * multiplier[payPeriod as keyof mult];
-    const category = inputState.category;
-    const before = inputState.validDate ? false : true;
-
-    resultState.employee = calculateNI(pay, category, employeeRates, before);
-    resultState.employer = calculateNI(pay, category, employerData, before);
-    console.log("employees ", resultState.employee);
-    setResultState({...resultState});
-  }, [inputState]);
-  const calculateNI = (
-    pay: number,
-    category: string,
-    rates: RatesType,
-    before: boolean
-  ) => {
-    const data = before ? rates["before"] : rates["after"];
-    let tot = 0;
-    let temp = pay;
-    if (temp < data[0]!.start) return 0;
-    for (let i = 0; i < data.length; i++) {
-      const start: number = data[i].start;
-      const end: number = data[i].end;
-      const taxable = Math.max(Math.min(end, pay) - start, 0);
-      tot += taxable * data[i].categories[category as keyof Mapping];
+    for (let e in ErrorInputState) {
+      if (ErrorInputState[e as keyof typeof ErrorInputState] !== "") return;
     }
-    return tot;
+    const date = new Date(inputState.date).getTime();
+    const jurisdiction = inputState.jurisdiction;
+    const data: CapRates = rates.reduce((a, b) => {
+      if (
+        date <= new Date(b.end).getTime() &&
+        date >= new Date(b.start).getTime()
+      )
+        return b;
+      return a;
+    });
+    const max: Max = data[jurisdiction as keyof CapRates] as Max;
+
+    const weekEarnings = Math.min(
+      max.max_week,
+      inputState.pay *
+        mappingEarnings[initialState.payPeriod as keyof typeof mappingEarnings]
+    );
+
+    const total = Math.min(
+      max.max_total,
+      calculateWeeks(inputState.age, Math.min(inputState.yearsWorked, 20)) *
+        weekEarnings
+    );
+    setResult(total);
+  }, [inputState]);
+  const calculateWeeks = (age: number, yearsWorked: number) => {
+    let res = 0;
+    for (let i = 0; i < yearsWorked; i++) {
+      if (age + i < 22) res += 0.5;
+      else if (age + i >= 22 && age + i < 41) res += 1;
+      else if (age >= 41) res += 1.5;
+    }
+    return res;
   };
   return (
     <Paper
@@ -85,32 +109,134 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         background: "#F2F2F7",
       }}
     >
-      {/* //"#F2F2F7" */}
-      <FormGroup style={{flexDirection: "row", justifyContent: "flex-start"}}>
-        <FormLabel style={{fontWeight: "bold", color: "black"}}>
-          Were earnings paid before 6th July 2022?
-        </FormLabel>
-        <Switch
-          onChange={e => {
-            if (e.target.checked) {
-              inputState.validDate = false;
-            } else {
-              inputState.validDate = true;
-            }
-            setInputState({...inputState});
-          }}
-          value={!inputState.validDate}
-        />
-      </FormGroup>{" "}
-      <FormControl style={{marginTop: "10px"}}>
-        <InputLabel>Pay period</InputLabel>
+      <TextField
+        type="date"
+        style={{background: "white"}}
+        label="Date you were made redundant"
+        InputLabelProps={{
+          shrink: true,
+          style: {color: "black"},
+        }}
+        value={inputState.date}
+        onChange={e => {
+          inputState.date = e.target.value;
+          if (!isValidDate(e.target.value)) {
+            ErrorInputState.date = "Insert a valid date";
+          } else if (
+            new Date(inputState.date).getTime() <
+              new Date(2021, 3, 6).getTime() ||
+            new Date(inputState.date).getTime() > new Date(2023, 3, 5).getTime()
+          ) {
+            ErrorInputState.date =
+              "The date must be between 6 Apr 2021 and 5 Apr 2023";
+          } else {
+            ErrorInputState.date = "";
+          }
+          setErrorInputState({...ErrorInputState});
+          setInputState({...inputState});
+        }}
+        error={ErrorInputState.date !== ""}
+        helperText={ErrorInputState.date}
+        FormHelperTextProps={{
+          style: errorStyle,
+        }}
+      />
+      <FormControl>
+        <InputLabel style={{marginTop: st.marginTop, color: "black"}}>
+          Jurisdiction
+        </InputLabel>
         <Select
           label="Pay period"
-          style={{background: "white"}}
-          value={inputState.payPeriod}
+          style={st}
+          value={inputState!.jurisdiction}
           input={<OutlinedInput label="Pay period" />}
           onChange={e => {
-            inputState.payPeriod = e.target.value as string;
+            inputState!.jurisdiction = e.target.value as string;
+            setInputState({...inputState});
+          }}
+        >
+          <MenuItem value="england">England & Wales</MenuItem>
+          <MenuItem value="scotland">Scotland</MenuItem>
+          <MenuItem value="northern_ireland">Northern Ireland</MenuItem>
+        </Select>
+      </FormControl>
+
+      <TextField
+        label="Age when you were made redundant"
+        type="number"
+        error={ErrorInputState.age !== ""}
+        style={st}
+        InputProps={{
+          inputProps: {min: 0, max: 100},
+        }}
+        InputLabelProps={{
+          shrink: true,
+          style: {color: "black"},
+        }}
+        value={inputState.age}
+        onChange={e => {
+          inputState.age = parseInt(e.target.value);
+          setInputState({...inputState});
+          if (inputState.age - inputState.yearsWorked < 15) {
+            ErrorInputState.age =
+              "Given the amount of years worked, you should not be younger than " +
+              (inputState.yearsWorked + 16 - 1).toString();
+          } else if (inputState.age < 16 || inputState.age > 100) {
+            ErrorInputState.age = "Please insert an age between 16 and 100";
+          } else {
+            ErrorInputState.age = "";
+          }
+          setErrorInputState({...ErrorInputState});
+        }}
+        helperText={ErrorInputState.age}
+        FormHelperTextProps={{style: errorStyle}}
+      />
+      <TextField
+        label="How many years have you worked for your employer"
+        InputLabelProps={{
+          style: {color: "black"},
+          shrink: true,
+        }}
+        error={ErrorInputState.yearsWorked !== ""}
+        type="number"
+        style={st}
+        InputProps={{
+          inputProps: {min: 0, max: 100},
+        }}
+        value={inputState.yearsWorked}
+        onChange={e => {
+          inputState.yearsWorked = parseInt(e.target.value);
+          setInputState({...inputState});
+          if (inputState.age - inputState.yearsWorked < 15) {
+            ErrorInputState.yearsWorked =
+              "Given your age, you should not have worked more than " +
+              (inputState.age - 16 + 1).toString() +
+              " years";
+          } else {
+            ErrorInputState.yearsWorked = "";
+          }
+          setErrorInputState({...ErrorInputState});
+        }}
+        helperText={ErrorInputState.yearsWorked}
+        FormHelperTextProps={{style: errorStyle}}
+      />
+      <FormControl>
+        <InputLabel
+          style={{
+            marginTop: st.marginTop,
+
+            color: "black",
+          }}
+        >
+          Pay period
+        </InputLabel>
+        <Select
+          label="Pay period"
+          style={st}
+          value={inputState!.payPeriod}
+          input={<OutlinedInput label="Pay period" />}
+          onChange={e => {
+            inputState!.payPeriod = e.target.value as string;
             setInputState({...inputState});
           }}
         >
@@ -123,48 +249,31 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         label="Enter pay"
         type="number"
-        style={{marginTop: "15px", background: "white"}}
-        InputLabelProps={{shrink: true}}
+        style={st}
+        InputLabelProps={{
+          style: {color: "#000000"},
+          shrink: true,
+        }}
         InputProps={{
           startAdornment: <InputAdornment position="start">£</InputAdornment>,
           inputProps: {min: 0, max: 100},
         }}
+        value={inputState.pay}
         onChange={e => {
           inputState.pay = parseFloat(e.target.value);
+
           setInputState({...inputState});
+          if (isNaN(inputState.pay)) {
+            ErrorInputState.pay = "Insert a valid pay";
+          } else {
+            ErrorInputState.pay = "";
+          }
+          setErrorInputState({...ErrorInputState});
         }}
-        value={inputState.pay}
       />
-      <FormControl style={{marginTop: "15px"}}>
-        <InputLabel>Select NICs Category</InputLabel>
-        <Select
-          inputProps={{}}
-          input={<OutlinedInput label="Select NICs Category" />}
-          value={inputState.category}
-          style={{background: "white"}}
-          onChange={e => {
-            inputState.category = e.target.value;
-            setInputState({...inputState});
-          }}
-        >
-          <MenuItem value="A">A</MenuItem>
-          <MenuItem value="B">B</MenuItem>
-          <MenuItem value="C">C</MenuItem>
-          <MenuItem value="F">F</MenuItem>
-          <MenuItem value="H">H</MenuItem>
-          <MenuItem value="I">I</MenuItem>
-          <MenuItem value="J">J</MenuItem>
-          <MenuItem value="L">L</MenuItem>
-          <MenuItem value="S">S</MenuItem>
-          <MenuItem value="V">V</MenuItem>
-          <MenuItem value="Z">Z</MenuItem>
-        </Select>
-      </FormControl>
+
       <p style={{textDecoration: "underline", fontWeight: "bold"}}>
-        NI Employee: £{currencyFormat(resultState.employee)}
-      </p>
-      <p style={{textDecoration: "underline", fontWeight: "bold"}}>
-        NI Employer: £{currencyFormat(resultState.employer)}
+        Redundancy Pay: £{currencyFormat(result)}
       </p>
     </Paper>
   );
@@ -181,4 +290,7 @@ const currencyFormat = (num: number): string => {
   } else {
     return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   }
+};
+const isValidDate = (date: string): boolean => {
+  return date !== "" && !isNaN(new Date(date).getTime());
 };
