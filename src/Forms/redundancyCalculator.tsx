@@ -32,7 +32,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     pay: 2500,
     yearsWorked: 5,
     age: 30,
-    payPeriod: "annually",
+    payPeriod: "weekly",
     jurisdiction: "england",
   };
   const st = {marginTop: "20px", background: "white"};
@@ -84,7 +84,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       calculateWeeks(inputState.age, Math.min(inputState.yearsWorked, 20)) *
         weekEarnings
     );
-    setResult(total);
+    setResult(roundUpAll(total));
   }, [inputState]);
   const calculateWeeks = (age: number, yearsWorked: number) => {
     let res = 0;
@@ -115,7 +115,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         label="Date you were made redundant"
         InputLabelProps={{
           shrink: true,
-          style: {color: "black"},
+          style: {color: "black",fontWeight:"bold"},
         }}
         value={inputState.date}
         onChange={e => {
@@ -142,14 +142,14 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         }}
       />
       <FormControl>
-        <InputLabel style={{marginTop: st.marginTop, color: "black"}}>
+        <InputLabel style={{marginTop: st.marginTop, color: "black",fontWeight:"bold"}}>
           Jurisdiction
         </InputLabel>
         <Select
-          label="Pay period"
+          label="Jurisdiction"
           style={st}
           value={inputState!.jurisdiction}
-          input={<OutlinedInput label="Pay period" />}
+          input={<OutlinedInput label="Jurisdiction" />}
           onChange={e => {
             inputState!.jurisdiction = e.target.value as string;
             setInputState({...inputState});
@@ -168,10 +168,11 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         style={st}
         InputProps={{
           inputProps: {min: 0, max: 100},
+          
         }}
         InputLabelProps={{
           shrink: true,
-          style: {color: "black"},
+          style: {color: "black",fontWeight:"bold"},
         }}
         value={inputState.age}
         onChange={e => {
@@ -194,7 +195,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         label="How many years have you worked for your employer"
         InputLabelProps={{
-          style: {color: "black"},
+          style: {color: "black",fontWeight:"bold"},
           shrink: true,
         }}
         error={ErrorInputState.yearsWorked !== ""}
@@ -224,17 +225,17 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         <InputLabel
           style={{
             marginTop: st.marginTop,
-
+            fontWeight:"bold",
             color: "black",
           }}
         >
-          Pay period
+          Pay period (adjust to weekly if possible)
         </InputLabel>
         <Select
-          label="Pay period"
+          label="Pay period (adjust to weekly if possible)"
           style={st}
           value={inputState!.payPeriod}
-          input={<OutlinedInput label="Pay period" />}
+          input={<OutlinedInput label="Pay period (adjust to weekly if possible)" />}
           onChange={e => {
             inputState!.payPeriod = e.target.value as string;
             setInputState({...inputState});
@@ -251,7 +252,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         type="number"
         style={st}
         InputLabelProps={{
-          style: {color: "#000000"},
+          style: {color: "#000000",fontWeight:"bold"},
           shrink: true,
         }}
         InputProps={{
@@ -279,18 +280,38 @@ export const RedundancyPayCalculator = (): JSX.Element => {
   );
 };
 const currencyFormat = (num: number): string => {
-  const ret = num.toFixed(3);
-  let digit = null;
-  const split = ret.split(".") as Array<string>;
-  if (split[1].charAt(2) !== "0") {
-    digit = parseInt(split[1].charAt(1)) + 1;
-    const str = parseFloat(split[0] + "." + split[1].charAt(0) + digit);
+  return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+};
 
-    return str.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+export const roundUpAll = (original: number): number => {
+  const tempOr = original.toString();
+
+  let value;
+  if (tempOr.indexOf(".") === -1) return original;
+  else {
+    value = tempOr + "00";
+  }
+  let up = false;
+  for (let i = value.indexOf(".") + 3; i < value.length; i++) {
+    const d = value.charAt(i);
+    if (d !== "0") {
+      up = true;
+      break;
+    }
+  }
+  const digits = value.split(".")[1];
+  if (up && digits[1] === "9" && digits[0] === "9") {
+    return Math.round(original);
+  } else if (up && digits[1] === "9") {
+    return parseFloat(value.split(".")[0] + "." + (parseInt(digits[0]) + 1).toString());
+  } else if (up) {
+    return parseFloat(value.split(".")[0] +"." + digits[0] +  (parseInt(digits[1]) + 1).toString());
   } else {
-    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    return original;
   }
 };
+
 const isValidDate = (date: string): boolean => {
   return date !== "" && !isNaN(new Date(date).getTime());
 };
