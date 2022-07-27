@@ -78,12 +78,12 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       inputState.pay *
         mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings]
     );
+  
+    const nWeeks =  calculateWeeks(inputState.age, Math.min(inputState.yearsWorked, 20))
+   
 
-    const total = Math.min(
-      max.max_total,
-      calculateWeeks(inputState.age, Math.min(inputState.yearsWorked, 20)) *
-        weekEarnings
-    );
+    const total = Math.min( max.max_total, nWeeks * weekEarnings);
+ 
     setResult(roundUpAll(total));
   }, [inputState]);
   const calculateWeeks = (age: number, yearsWorked: number) => {
@@ -93,6 +93,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       else if (age - i >= 22 && age - i < 41) res += 1;
       else if (age-i >= 41) res += 1.5;
     }
+    
     return res;
   };
   return (
