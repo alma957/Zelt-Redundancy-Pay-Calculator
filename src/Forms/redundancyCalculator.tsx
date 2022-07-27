@@ -9,6 +9,7 @@ import {
   InputLabel,
   InputAdornment,
   OutlinedInput,
+  Typography,
 } from "@mui/material";
 import "../App.css";
 
@@ -57,6 +58,10 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     annually: 1 / 52,
     monthly: 12 / 52,
   };
+  const [maxWeek,setMaxWeek] = useState<number>(0)
+    const [maxTotal,setMaxTotal] = useState<number>(0)
+    const [accruedWeeks,setAccruedWeeks] = useState<number>(0)
+    const [unadjustedRes,setUnadjustedRes] = useState<number>(0)
   useEffect(() => {
     for (let e in ErrorInputState) {
       if (ErrorInputState[e as keyof typeof ErrorInputState] !== "") return;
@@ -78,12 +83,13 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       inputState.pay *
         mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings]
     );
-  
+      setMaxWeek(max.max_week)
+      setMaxTotal(max.max_total)
     const nWeeks =  calculateWeeks(inputState.age, Math.min(inputState.yearsWorked, 20))
-   
-
+      setAccruedWeeks(nWeeks)
+      
     const total = Math.min( max.max_total, nWeeks * weekEarnings);
- 
+    setUnadjustedRes(nWeeks*weekEarnings)
     setResult(roundUpAll(total));
   }, [inputState]);
   const calculateWeeks = (age: number, yearsWorked: number) => {
@@ -277,6 +283,20 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <p style={{textDecoration: "underline", fontWeight: "bold"}}>
         Redundancy Pay: £{currencyFormat(result)}
       </p>
+      <Typography>
+      <li>
+          Full years worked: <i>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>) =<span style={{fontWeight:"bold"}}> {Math.min(inputState.yearsWorked,20)}</span> </i>
+        </li>
+        <li>
+          Total number of accrued weeks =<span style={{fontWeight:"bold"}}> {accruedWeeks}</span>
+        </li>
+        <li>
+          Earnings: <i>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>) =<span style={{fontWeight:"bold"}}> £{currencyFormat(Math.min(roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number)),maxWeek))}</span> </i>
+        </li>
+        <li>
+          Total: <i>min({roundUpAll(unadjustedRes)},<span style={{"color":"red",fontWeight:"bold"}}>{maxTotal}</span>) = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span></i>
+        </li>
+      </Typography>
     </Paper>
   );
 };
