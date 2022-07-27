@@ -10,6 +10,7 @@ import {
   InputAdornment,
   OutlinedInput,
   Typography,
+  Box,
 } from "@mui/material";
 import "../App.css";
 
@@ -29,7 +30,7 @@ interface ErrorState {
 }
 export const RedundancyPayCalculator = (): JSX.Element => {
   const initialState: InputState = {
-    date: "2022-04-06",
+    date: new Date().toISOString().substring(0,10),
     pay: 500,
     yearsWorked: 5,
     age: 30,
@@ -62,6 +63,11 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     const [maxTotal,setMaxTotal] = useState<number>(0)
     const [accruedWeeks,setAccruedWeeks] = useState<number>(0)
     const [adjustEarnings,setadjustEarnings] = useState<number>(0)
+    const [yearsWorkedBreak,setYearsWorkedBreak] = useState<any>({
+      "22":0,
+      "41":0,
+      "old":0
+    })
   useEffect(() => {
     for (let e in ErrorInputState) {
       if (ErrorInputState[e as keyof typeof ErrorInputState] !== "") return;
@@ -94,12 +100,24 @@ export const RedundancyPayCalculator = (): JSX.Element => {
   }, [inputState]);
   const calculateWeeks = (age: number, yearsWorked: number) => {
     let res = 0;
+    yearsWorkedBreak["22"] = 0
+    yearsWorkedBreak["41"] = 0
+    yearsWorkedBreak["old"] = 0
     for (let i = 1; i < yearsWorked+1; i++) {
-      if (age - i < 22) res += 0.5;
-      else if (age - i >= 22 && age - i < 41) res += 1;
-      else if (age-i >= 41) res += 1.5;
+      if (age - i < 22) {
+        res += 0.5
+        yearsWorkedBreak["22"]+=1
+      }
+      else if (age - i >= 22 && age - i < 41) {
+        res += 1
+        yearsWorkedBreak["41"]+=1
+      }
+      else if (age-i >= 41) {
+        res += 1.5
+        yearsWorkedBreak["old"]+=1
+      };
     }
-    
+    setYearsWorkedBreak(yearsWorkedBreak)
     return res;
   };
   return (
@@ -122,7 +140,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         label="Date you were made redundant"
         InputLabelProps={{
           shrink: true,
-          style: {color: "black",fontWeight:"bold"},
+          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
         }}
         value={inputState.date}
         onChange={e => {
@@ -149,7 +167,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         }}
       />
       <FormControl>
-        <InputLabel style={{marginTop: st.marginTop, color: "black",fontWeight:"bold"}}>
+        <InputLabel style={{marginTop: st.marginTop, color: "black",fontWeight:"bold",fontSize:"95%"}}>
           Jurisdiction
         </InputLabel>
         <Select
@@ -172,14 +190,13 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         label="Age when you were made redundant"
         type="number"
         error={ErrorInputState.age !== ""}
-        style={st}
+        style={{marginTop: "20px", background: "white"}}
         InputProps={{
           inputProps: {min: 0, max: 100},
           
         }}
-        InputLabelProps={{
-          shrink: true,
-          style: {color: "black",fontWeight:"bold"},
+        InputLabelProps={{       
+          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
         }}
         value={inputState.age}
         onChange={e => {
@@ -202,7 +219,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         label="How many years have you worked for your employer"
         InputLabelProps={{
-          style: {color: "black",fontWeight:"bold"},
+          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
           shrink: true,
         }}
         error={ErrorInputState.yearsWorked !== ""}
@@ -228,40 +245,19 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         helperText={ErrorInputState.yearsWorked}
         FormHelperTextProps={{style: errorStyle}}
       />
-      <FormControl>
-        <InputLabel
-          style={{
-            marginTop: st.marginTop,
-            fontWeight:"bold",
-            color: "black",
-          }}
-        >
-          Pay period (adjust to weekly if possible)
-        </InputLabel>
-        <Select
-          label="Pay period (adjust to weekly if possible)"
-          style={st}
-          value={inputState!.payPeriod}
-          input={<OutlinedInput label="Pay period (adjust to weekly if possible)" />}
-          onChange={e => {
-            inputState!.payPeriod = e.target.value as string;
-            setInputState({...inputState});
-          }}
-        >
-          <MenuItem value="annually">Annually</MenuItem>
-          <MenuItem value="monthly">Monthly</MenuItem>
-          <MenuItem value="weekly">Weekly</MenuItem>
-          <MenuItem value="daily">Daily</MenuItem>
-        </Select>
-      </FormControl>
+      
+        
+      
+   
       <TextField
-        label="Enter pay"
+        label="Enter average 12 weeks earnings before redundancy"
+        key="pay"       
         type="number"
         style={st}
         InputLabelProps={{
-          style: {color: "#000000",fontWeight:"bold"},
-          shrink: true,
+          style: {color: "#000000",fontWeight:"bold",fontSize:"95%"}         
         }}
+        variant="outlined"
         InputProps={{
           startAdornment: <InputAdornment position="start">£</InputAdornment>,
           inputProps: {min: 0, max: 100},
@@ -285,23 +281,40 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       </p>
       <Typography>
       <li>
-          Full years worked: <i style={{fontWeight:"bold"}}>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>)</i> =<span style={{fontWeight:"bold"}}> {Math.min(inputState.yearsWorked,20)}</span> 
-        </li>
-        <li>
+          Considered years worked: <i style={{fontWeight:"bold"}}>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>)</i> =<span style={{}}></span> <span style={{color:inputState.yearsWorked>20 ? "red":"black",fontWeight:"bold"}}>{Math.min(inputState.yearsWorked,20)}</span> 
+      </li>
+        
+        <li style={{marginTop:"5px"}}>
           Total number of accrued weeks =<span style={{fontWeight:"bold"}}> {accruedWeeks}</span>
-        </li>
-        <li>
-          Earnings: <i style={{fontWeight:"bold"}}>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>)</i> =<span style={{fontWeight:"bold"}}> £{adjustEarnings}</span>
+
+          <ul style={{listStyleType:"circle"}}>         
+          <li style={{display:yearsWorkedBreak["22"]===0?"none":"list-item",listStyleType:"circle"}}>
+          Weeks accrued (age {"<"} 22): {yearsWorkedBreak["22"]}*0.5 = <b>{yearsWorkedBreak["22"]*0.5}</b>
           </li>
-        <li>
-          Total: <i style={{fontWeight:"bold"}}>£<span style={{color:adjustEarnings>maxWeek?"red":"black"}}>{currencyFormat(Math.min(adjustEarnings,maxWeek))}</span>*{accruedWeeks}</i> = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span>
+          <li style= {{display:yearsWorkedBreak["41"]===0?"none":"list-item",listStyleType:"circle"}}>
+          Weeks accrued (22{" <= age < "}41): {yearsWorkedBreak["41"]}*1 =<b> {yearsWorkedBreak["41"]*1}</b>
+          </li>
+          <li style= {{display:yearsWorkedBreak["old"]===0?"none":"list-item",listStyleType:"circle"}}>
+          Weeks accrued {"(age >= 41)"}: {yearsWorkedBreak["old"]}*1.5 = <b>{yearsWorkedBreak["old"]*1.5}</b>
+          </li>
+          </ul>
+     
+        </li>
+        
+
+        <li >
+          Considered weekly earnings: <i style={{fontWeight:"bold"}}>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>)</i> =<span style={{fontWeight:"bold"}}> £{adjustEarnings}</span>
+          </li>
+        <li style={{marginTop:"5px"}}>
+          Total: <i style={{fontWeight:"bold"}}>£<span style={{color:adjustEarnings>maxWeek?"red":"black"}}>{currencyFormat(roundUpAll(Math.min(adjustEarnings,maxWeek)))}</span>*{accruedWeeks}</i> = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span>
         </li>
       </Typography>
     </Paper>
   );
 };
 const currencyFormat = (num: number): string => {
-  return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
 
 
