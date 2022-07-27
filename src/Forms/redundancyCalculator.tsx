@@ -29,8 +29,8 @@ interface ErrorState {
 }
 export const RedundancyPayCalculator = (): JSX.Element => {
   const initialState: InputState = {
-    date: "2022-01-01",
-    pay: 2500,
+    date: "2022-04-06",
+    pay: 500,
     yearsWorked: 5,
     age: 30,
     payPeriod: "weekly",
@@ -61,7 +61,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
   const [maxWeek,setMaxWeek] = useState<number>(0)
     const [maxTotal,setMaxTotal] = useState<number>(0)
     const [accruedWeeks,setAccruedWeeks] = useState<number>(0)
-    const [unadjustedRes,setUnadjustedRes] = useState<number>(0)
+    const [adjustEarnings,setadjustEarnings] = useState<number>(0)
   useEffect(() => {
     for (let e in ErrorInputState) {
       if (ErrorInputState[e as keyof typeof ErrorInputState] !== "") return;
@@ -89,7 +89,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       setAccruedWeeks(nWeeks)
       
     const total = Math.min( max.max_total, nWeeks * weekEarnings);
-    setUnadjustedRes(nWeeks*weekEarnings)
+    setadjustEarnings(roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number)))
     setResult(roundUpAll(total));
   }, [inputState]);
   const calculateWeeks = (age: number, yearsWorked: number) => {
@@ -285,16 +285,16 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       </p>
       <Typography>
       <li>
-          Full years worked: <i>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>) =<span style={{fontWeight:"bold"}}> {Math.min(inputState.yearsWorked,20)}</span> </i>
+          Full years worked: <i style={{fontWeight:"bold"}}>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>)</i> =<span style={{fontWeight:"bold"}}> {Math.min(inputState.yearsWorked,20)}</span> 
         </li>
         <li>
           Total number of accrued weeks =<span style={{fontWeight:"bold"}}> {accruedWeeks}</span>
         </li>
         <li>
-          Earnings: <i>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>) =<span style={{fontWeight:"bold"}}> £{currencyFormat(Math.min(roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number)),maxWeek))}</span> </i>
-        </li>
+          Earnings: <i style={{fontWeight:"bold"}}>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>)</i> =<span style={{fontWeight:"bold"}}> £{adjustEarnings}</span>
+          </li>
         <li>
-          Total: <i>min({roundUpAll(unadjustedRes)},<span style={{"color":"red",fontWeight:"bold"}}>{maxTotal}</span>) = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span></i>
+          Total: <i style={{fontWeight:"bold"}}>£<span style={{color:adjustEarnings>maxWeek?"red":"black"}}>{currencyFormat(Math.min(adjustEarnings,maxWeek))}</span>*{accruedWeeks}</i> = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span>
         </li>
       </Typography>
     </Paper>
