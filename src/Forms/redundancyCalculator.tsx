@@ -89,9 +89,9 @@ export const RedundancyPayCalculator = (): JSX.Element => {
   const calculateWeeks = (age: number, yearsWorked: number) => {
     let res = 0;
     for (let i = 0; i < yearsWorked; i++) {
-      if (age + i < 22) res += 0.5;
-      else if (age + i >= 22 && age + i < 41) res += 1;
-      else if (age >= 41) res += 1.5;
+      if (age - i < 22) res += 0.5;
+      else if (age - i >= 22 && age - i < 41) res += 1;
+      else if (age-i >= 41) res += 1.5;
     }
     return res;
   };
