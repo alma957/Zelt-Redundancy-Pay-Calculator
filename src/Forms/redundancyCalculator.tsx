@@ -33,7 +33,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     date: new Date().toISOString().substring(0,10),
     pay: 500,
     yearsWorked: 5,
-    age: 30,
+    age: 43,
     payPeriod: "weekly",
     jurisdiction: "england",
   };
@@ -124,7 +124,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     <Paper
       className="myinput"
       style={{
-        width: "90%",
+        width: "80%",
         padding: "20px",
         display: "flex",
         flexDirection: "column",
