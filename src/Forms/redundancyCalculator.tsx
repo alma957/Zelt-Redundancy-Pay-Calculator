@@ -124,7 +124,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     <Paper
       className="myinput"
       style={{
-        width: "35%",
+        width: "100%",
         padding: "20px",
         display: "flex",
         flexDirection: "column",
