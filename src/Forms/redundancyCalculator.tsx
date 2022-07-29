@@ -11,9 +11,15 @@ import {
   OutlinedInput,
   Typography,
   Box,
+  IconButton,
+  Fade,
+  FormLabel,
+  Switch,
 } from "@mui/material";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import "../App.css";
 
+import { ArrowForward, ArrowForwardIos } from "@mui/icons-material";
 interface InputState {
   date: string;
   pay: number;
@@ -28,6 +34,7 @@ interface ErrorState {
   yearsWorked: string;
   age: string;
 }
+
 export const RedundancyPayCalculator = (): JSX.Element => {
   const initialState: InputState = {
     date: new Date().toISOString().substring(0,10),
@@ -46,6 +53,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     yearsWorked: "",
     age: "",
   });
+  
   const errorStyle = {
     color: "red",
     background: "#F2F2F7",
@@ -120,6 +128,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     setYearsWorkedBreak(yearsWorkedBreak)
     return res;
   };
+  const [displayExplanation,setDisplayExplanation] = useState<boolean>(false)
   return (
     <Paper
       className="myinput"
@@ -137,7 +146,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         type="date"
         style={{background: "white"}}
-        label="Date you were made redundant"
+        label="Employee's redundancy start date"
         InputLabelProps={{
           shrink: true,
           style: {color: "black",fontWeight:"bold",fontSize:"95%"},
@@ -187,7 +196,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       </FormControl>
 
       <TextField
-        label="Age when you were made redundant"
+        label="Age when the employee was made redundant"
         type="number"
         error={ErrorInputState.age !== ""}
         style={{marginTop: "20px", background: "white"}}
@@ -200,7 +209,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         }}
         value={inputState.age}
         onChange={e => {
-          inputState.age = parseInt(e.target.value);
+          inputState.age = Math.floor(parseInt(e.target.value));
           setInputState({...inputState});
           if (inputState.age - inputState.yearsWorked < 15) {
             ErrorInputState.age =
@@ -217,7 +226,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         FormHelperTextProps={{style: errorStyle}}
       />
       <TextField
-        label="How many years have you worked for your employer"
+        label="How many years has the employee worked?"
         InputLabelProps={{
           style: {color: "black",fontWeight:"bold",fontSize:"95%"},
           shrink: true,
@@ -250,7 +259,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       
    
       <TextField
-        label="Enter average 12 weeks earnings before redundancy"
+        label="Average 12 weeks earnings before redundancy"
         key="pay"       
         type="number"
         style={st}
@@ -279,7 +288,25 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <p style={{textDecoration: "underline", fontWeight: "bold"}}>
         Redundancy Pay: £{currencyFormat(result)}
       </p>
-      <Typography>
+      <Box style={{marginLeft:"0px",marginTop:"0"}}>
+      {/* Breakdown  <IconButton aria-label="Example" style={{transform: !displayExplanation? "rotate(0deg)":"rotate(90deg)"}} onClick={()=>{
+    setDisplayExplanation(!displayExplanation)
+  }}  > 
+  <ArrowForward/>
+
+</IconButton>  */}
+<FormLabel style={{fontWeight: "bold", color: "black"}}>
+          Display breakdown
+        </FormLabel>
+        <Switch
+          onChange={e => {
+            setDisplayExplanation(e.target.checked)
+          }
+        }
+        />
+</Box>
+<Fade in={displayExplanation} >
+      <Typography >
       <li>
           Considered years worked: <i style={{fontWeight:"bold"}}>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>)</i> =<span style={{}}></span> <span style={{color:inputState.yearsWorked>20 ? "red":"black",fontWeight:"bold"}}>{Math.min(inputState.yearsWorked,20)}</span> 
       </li>
@@ -289,13 +316,13 @@ export const RedundancyPayCalculator = (): JSX.Element => {
 
           <ul style={{listStyleType:"circle"}}>         
           <li style={{display:yearsWorkedBreak["22"]===0?"none":"list-item",listStyleType:"circle"}}>
-          Weeks accrued (age {"<"} 22): {yearsWorkedBreak["22"]}*0.5 = <b>{yearsWorkedBreak["22"]*0.5}</b>
+          Weeks accrued (age {"<"} 22): {yearsWorkedBreak["22"]} years * 0.5 = <b>{yearsWorkedBreak["22"]*0.5} weeks</b>
           </li>
           <li style= {{display:yearsWorkedBreak["41"]===0?"none":"list-item",listStyleType:"circle"}}>
-          Weeks accrued (22{" <= age < "}41): {yearsWorkedBreak["41"]}*1 =<b> {yearsWorkedBreak["41"]*1}</b>
+          Weeks accrued (22{" <= age < "}41): {yearsWorkedBreak["41"]} years * 1 =<b> {yearsWorkedBreak["41"]*1} weeks</b>
           </li>
           <li style= {{display:yearsWorkedBreak["old"]===0?"none":"list-item",listStyleType:"circle"}}>
-          Weeks accrued {"(age >= 41)"}: {yearsWorkedBreak["old"]}*1.5 = <b>{yearsWorkedBreak["old"]*1.5}</b>
+          Weeks accrued {"(age >= 41)"}: {yearsWorkedBreak["old"]} years * 1.5 = <b>{yearsWorkedBreak["old"]*1.5} weeks</b>
           </li>
           </ul>
      
@@ -309,6 +336,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           Total: <i style={{fontWeight:"bold"}}>£<span style={{color:adjustEarnings>maxWeek?"red":"black"}}>{currencyFormat(roundUpAll(Math.min(adjustEarnings,maxWeek)))}</span>*{accruedWeeks}</i> = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span>
         </li>
       </Typography>
+      </Fade>
     </Paper>
   );
 };
@@ -316,7 +344,6 @@ const currencyFormat = (num: number): string => {
 
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
-
 
 export const roundUpAll = (original: number): number => {
   const tempOr = original.toString();
