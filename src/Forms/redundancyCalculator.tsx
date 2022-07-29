@@ -11,15 +11,13 @@ import {
   OutlinedInput,
   Typography,
   Box,
-  IconButton,
-  Fade,
+   Fade,
   FormLabel,
   Switch,
 } from "@mui/material";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import "../App.css";
 
-import { ArrowForward, ArrowForwardIos } from "@mui/icons-material";
 interface InputState {
   date: string;
   pay: number;
