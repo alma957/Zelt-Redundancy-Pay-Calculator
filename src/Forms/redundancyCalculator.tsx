@@ -305,7 +305,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         }
         />
 </Box>
-<Fade in={displayExplanation} >
+<Fade in={displayExplanation} unmountOnExit >
       <Typography >
       <li>
           Considered years worked: <i style={{fontWeight:"bold"}}>min({inputState.yearsWorked},<span style={{"color":"red",fontWeight:"bold"}}>{20}</span>)</i> =<span style={{}}></span> <span style={{color:inputState.yearsWorked>20 ? "red":"black",fontWeight:"bold"}}>{Math.min(inputState.yearsWorked,20)}</span> 
