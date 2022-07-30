@@ -66,7 +66,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     monthly: 12 / 52,
   };
   const [maxWeek,setMaxWeek] = useState<number>(0)
-    const [maxTotal,setMaxTotal] = useState<number>(0)
+ 
     const [accruedWeeks,setAccruedWeeks] = useState<number>(0)
     const [adjustEarnings,setadjustEarnings] = useState<number>(0)
     const [yearsWorkedBreak,setYearsWorkedBreak] = useState<any>({
@@ -75,8 +75,14 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       "old":0
     })
   useEffect(() => {
+    if(isNaN(inputState.pay)) {
+      setadjustEarnings(0)
+      return
+    }
     for (let e in ErrorInputState) {
-      if (ErrorInputState[e as keyof typeof ErrorInputState] !== "") return;
+      if (ErrorInputState[e as keyof typeof ErrorInputState] !== ""){ 
+        return
+      };
     }
     const date = new Date(inputState.date).getTime();
     const jurisdiction = inputState.jurisdiction;
@@ -96,13 +102,14 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings]
     );
       setMaxWeek(max.max_week)
-      setMaxTotal(max.max_total)
+   
     const nWeeks =  calculateWeeks(inputState.age, Math.min(inputState.yearsWorked, 20))
       setAccruedWeeks(nWeeks)
       
     const total = Math.min( max.max_total, nWeeks * weekEarnings);
     setadjustEarnings(roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number)))
     setResult(roundUpAll(total));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputState]);
   const calculateWeeks = (age: number, yearsWorked: number) => {
     let res = 0;
