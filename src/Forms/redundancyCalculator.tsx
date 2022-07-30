@@ -77,6 +77,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
   useEffect(() => {
     if(isNaN(inputState.pay)) {
       setadjustEarnings(0)
+      setResult(0)
       return
     }
     for (let e in ErrorInputState) {
