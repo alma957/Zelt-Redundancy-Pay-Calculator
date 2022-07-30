@@ -131,7 +131,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     <Paper
       className="myinput"
       style={{
-        width: "81%",
+        width: "85%",
         padding: "20px",
         display: "flex",
         flexDirection: "column",
@@ -147,7 +147,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         label="Employee's redundancy start date"
         InputLabelProps={{
           shrink: true,
-          style: {color: "black",fontWeight:"bold",fontSize:"98%"},
+          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
         }}
         value={inputState.date}
         onChange={e => {
