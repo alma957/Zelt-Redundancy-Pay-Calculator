@@ -147,7 +147,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         label="Employee's redundancy start date"
         InputLabelProps={{
           shrink: true,
-          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
+          style: {color: "black",fontWeight:"bold",fontSize:"98%"},
         }}
         value={inputState.date}
         onChange={e => {
@@ -328,7 +328,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         
 
         <li >
-          Considered weekly earnings: <i style={{fontWeight:"bold"}}>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>)</i> =<span style={{fontWeight:"bold"}}> £{adjustEarnings}</span>
+          Considered weekly earnings: <i style={{fontWeight:"bold"}}>min({roundUpAll(inputState.pay*(mappingEarnings[inputState.payPeriod as keyof typeof mappingEarnings] as number))},<span style={{"color":"red",fontWeight:"bold"}}>{maxWeek}</span>)</i> =<span style={{fontWeight:"bold"}}> £{currencyFormat(Math.min(adjustEarnings,maxWeek))}</span>
           </li>
         <li style={{marginTop:"5px"}}>
           Total: <i style={{fontWeight:"bold"}}>£<span style={{color:adjustEarnings>maxWeek?"red":"black"}}>{currencyFormat(roundUpAll(Math.min(adjustEarnings,maxWeek)))}</span>*{accruedWeeks}</i> = <span style={{fontWeight:"bold"}}> £{currencyFormat(result)} </span>
