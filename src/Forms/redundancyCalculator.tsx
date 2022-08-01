@@ -36,7 +36,7 @@ interface ErrorState {
 
 export const RedundancyPayCalculator = (): JSX.Element => {
   const initialState: InputState = {
-    startDate: new Date(new Date().getTime()-3600*1000*24*365).toISOString().substring(0,10),
+    startDate: new Date(new Date().getTime()-3600*1000*24*368*2).toISOString().substring(0,10),
     redundancyDate: new Date().toISOString().substring(0,10),
     pay: 456,
     yearsWorked: 3,
