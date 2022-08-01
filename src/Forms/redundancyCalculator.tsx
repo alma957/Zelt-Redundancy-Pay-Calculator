@@ -44,7 +44,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
     payPeriod: "weekly",
     jurisdiction: "england",
   };
-  const st = {marginTop: "20px", background: "white"};
+  const st = {marginTop: "20px", background: "white",width:"95%"};
   const [inputState, setInputState] = useState<InputState>(initialState);
   const [result, setResult] = useState<number>(0);
   const [ErrorInputState, setErrorInputState] = useState<ErrorState>({
@@ -155,12 +155,14 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         background: "#F2F2F7",
       }}
     >
+    <Box style={{display:"flex",flexDirection:"row",width:"95%"}}>
     <TextField
         label="Employment start date"
         InputLabelProps={{
-          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
+          style: {color: "black",fontWeight:"bold",fontSize:"93%"},
           shrink: true,
         }}
+        size="small"
         error={ErrorInputState.yearsWorked !== ""}
         type="date"
         style={st}
@@ -200,7 +202,8 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       />
       <TextField
         type="date"
-        style={{background: "white",marginTop:"20px"}}
+        size="small"
+        style={{...st,marginLeft:"2%"}}
         label="Redundancy start date"
         InputLabelProps={{
           shrink: true,
@@ -240,11 +243,13 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           style: errorStyle,
         }}
       />
+      </Box>
       <FormControl>
-        <InputLabel style={{marginTop: st.marginTop, color: "black",fontWeight:"bold",fontSize:"95%"}}>
+        <InputLabel size="small" style={{marginTop: st.marginTop, color: "black",fontWeight:"bold",fontSize:"95%"}}>
           Jurisdiction
         </InputLabel>
         <Select
+        size="small"
           label="Jurisdiction"
           style={st}
           value={inputState!.jurisdiction}
@@ -263,8 +268,9 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         label="Age when the employee was made redundant"
         type="number"
+        size="small"
         error={ErrorInputState.age !== ""}
-        style={{marginTop: "20px", background: "white"}}
+        style={st}
         InputProps={{
           inputProps: {min: 0, max: 100},
           
@@ -297,7 +303,8 @@ export const RedundancyPayCalculator = (): JSX.Element => {
    
       <TextField
         label="Weekly income"
-        key="pay"       
+        key="pay"  
+        size="small"     
         type="number"
         style={st}
         InputLabelProps={{
