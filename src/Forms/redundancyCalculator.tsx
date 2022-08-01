@@ -152,7 +152,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         type="date"
         style={{background: "white"}}
-        label="Employee's redundancy start date"
+        label="Redundancy start date"
         InputLabelProps={{
           shrink: true,
           style: {color: "black",fontWeight:"bold",fontSize:"95%"},
@@ -232,7 +232,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         FormHelperTextProps={{style: errorStyle}}
       />
       <TextField
-        label="How many years has the employee worked?"
+        label="Years worked"
         InputLabelProps={{
           style: {color: "black",fontWeight:"bold",fontSize:"95%"},
           shrink: true,
@@ -265,7 +265,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       
    
       <TextField
-        label="Average 12 weeks earnings before redundancy"
+        label="Weekly income"
         key="pay"       
         type="number"
         style={st}
@@ -277,6 +277,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           startAdornment: <InputAdornment position="start">£</InputAdornment>,
           inputProps: {min: 0, max: 100},
         }}
+        helperText="average over the past 12 weeks"
         value={inputState.pay}
         onChange={e => {
           inputState.pay = parseFloat(e.target.value);
