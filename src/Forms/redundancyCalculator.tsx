@@ -19,7 +19,8 @@ import {
 import "../App.css";
 
 interface InputState {
-  date: string;
+  redundancyDate: string;
+  startDate:string;
   pay: number;
   yearsWorked: number;
   payPeriod: string;
@@ -35,7 +36,8 @@ interface ErrorState {
 
 export const RedundancyPayCalculator = (): JSX.Element => {
   const initialState: InputState = {
-    date: new Date().toISOString().substring(0,10),
+    startDate: new Date().toISOString().substring(0,10),
+    redundancyDate: new Date().toISOString().substring(0,10),
     pay: 456,
     yearsWorked: 3,
     age: 42,
@@ -79,13 +81,17 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       setadjustEarnings(0)
       setResult(0)
       return
+    } else if(inputState.yearsWorked<2) {
+      inputState.yearsWorked=0
+      setInputState(inputState)
+      setResult(0)
     }
     for (let e in ErrorInputState) {
       if (ErrorInputState[e as keyof typeof ErrorInputState] !== ""){ 
         return
       };
     }
-    const date = new Date(inputState.date).getTime();
+    const date = new Date(inputState.redundancyDate).getTime();
     const jurisdiction = inputState.jurisdiction;
     const data: CapRates = rates.reduce((a, b) => {
       if (
@@ -149,29 +155,82 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         background: "#F2F2F7",
       }}
     >
+    <TextField
+        label="Employment start date"
+        InputLabelProps={{
+          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
+          shrink: true,
+        }}
+        error={ErrorInputState.yearsWorked !== ""}
+        type="date"
+        style={st}
+  
+        value={inputState.startDate}
+        onChange={e => {
+       
+          if (!isValidDate(e.target.value)) {
+            ErrorInputState.yearsWorked = "Insert a valid date"
+          
+          } 
+          
+          const date = new Date(e.target.value).getTime()
+          inputState.startDate = e.target.value
+          const reduDate = new Date(inputState.redundancyDate).getTime()
+          if(reduDate<=date) {
+            ErrorInputState.yearsWorked = "Employment must start before redundancy"
+            return;
+          }
+          inputState.yearsWorked = Math.floor((reduDate-date)/(3600*1000*24*365));
+          console.log(inputState.yearsWorked)
+         
+          if (inputState.age - inputState.yearsWorked < 15) {
+            ErrorInputState.yearsWorked =
+              "Given your age, you should not have worked more than " +
+              (inputState.age - 16 + 1).toString() +
+              " years";
+          } else {
+            ErrorInputState.yearsWorked = "";
+          }
+          setErrorInputState({...ErrorInputState});
+          console.log("setting")
+           setInputState({...inputState});
+        }}
+        helperText={ErrorInputState.yearsWorked}
+        FormHelperTextProps={{style: errorStyle}}
+      />
       <TextField
         type="date"
-        style={{background: "white"}}
+        style={{background: "white",marginTop:"20px"}}
         label="Redundancy start date"
         InputLabelProps={{
           shrink: true,
           style: {color: "black",fontWeight:"bold",fontSize:"95%"},
         }}
-        value={inputState.date}
+        value={inputState.redundancyDate}
         onChange={e => {
-          inputState.date = e.target.value;
+          inputState.redundancyDate = e.target.value;
+        
+          const date = new Date(inputState.startDate).getTime()
+          const reduDate = new Date(inputState.redundancyDate).getTime()
+          if(inputState.redundancyDate<=inputState.startDate) {
+            ErrorInputState.date = "Employment must start before redundancy"
+            
+          }
           if (!isValidDate(e.target.value)) {
             ErrorInputState.date = "Insert a valid date";
           } else if (
-            new Date(inputState.date).getTime() <
+            new Date(inputState.redundancyDate).getTime() <
               new Date(2021, 3, 6).getTime() ||
-            new Date(inputState.date).getTime() > new Date(2023, 3, 5).getTime()
+            new Date(inputState.redundancyDate).getTime() > new Date(2023, 3, 5).getTime()
           ) {
             ErrorInputState.date =
               "The date must be between 6 Apr 2021 and 5 Apr 2023";
           } else {
             ErrorInputState.date = "";
           }
+
+          inputState.yearsWorked = Math.floor((reduDate-date)/(3600*1000*24*365));
+          
           setErrorInputState({...ErrorInputState});
           setInputState({...inputState});
         }}
@@ -231,35 +290,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         helperText={ErrorInputState.age}
         FormHelperTextProps={{style: errorStyle}}
       />
-      <TextField
-        label="Years worked"
-        InputLabelProps={{
-          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
-          shrink: true,
-        }}
-        error={ErrorInputState.yearsWorked !== ""}
-        type="number"
-        style={st}
-        InputProps={{
-          inputProps: {min: 0, max: 100},
-        }}
-        value={inputState.yearsWorked}
-        onChange={e => {
-          inputState.yearsWorked = parseInt(e.target.value);
-          setInputState({...inputState});
-          if (inputState.age - inputState.yearsWorked < 15) {
-            ErrorInputState.yearsWorked =
-              "Given your age, you should not have worked more than " +
-              (inputState.age - 16 + 1).toString() +
-              " years";
-          } else {
-            ErrorInputState.yearsWorked = "";
-          }
-          setErrorInputState({...ErrorInputState});
-        }}
-        helperText={ErrorInputState.yearsWorked}
-        FormHelperTextProps={{style: errorStyle}}
-      />
+
       
         
       
@@ -278,6 +309,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
           inputProps: {min: 0, max: 100},
         }}
         helperText="average over the past 12 weeks"
+        FormHelperTextProps={{style:{...errorStyle,color:"black"}}}
         value={inputState.pay}
         onChange={e => {
           inputState.pay = parseFloat(e.target.value);
