@@ -155,11 +155,11 @@ export const RedundancyPayCalculator = (): JSX.Element => {
         background: "#F2F2F7",
       }}
     >
-    <Box style={{display:"flex",flexDirection:"row",width:"95%"}}>
+    <Box style={{display:"flex",flexDirection:"column",width:"100%"}}>
     <TextField
         label="Employment start date"
         InputLabelProps={{
-          style: {color: "black",fontWeight:"bold",fontSize:"93%"},
+          style: {color: "black",fontWeight:"bold",fontSize:"95%"},
           shrink: true,
         }}
         size="small"
@@ -203,7 +203,7 @@ export const RedundancyPayCalculator = (): JSX.Element => {
       <TextField
         type="date"
         size="small"
-        style={{...st,marginLeft:"2%"}}
+        style={{...st,marginLeft:"0%"}}
         label="Redundancy start date"
         InputLabelProps={{
           shrink: true,
